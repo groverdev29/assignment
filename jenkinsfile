@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Checkout code from Git repository (specify correct branch)
-                git url: 'https://github.com/groverdev29/assignment', branch: 'main'
+                git branch: 'main', credentialsId: 'your-git-credentials-id', url: 'https://github.com/groverdev29/assignment'
                 // Build the code using Maven
                 sh 'mvn clean package'
             }
@@ -15,7 +15,7 @@ pipeline {
             steps {
                 // Run unit tests using Maven
                 sh 'mvn test'
-                // Run integration tests using a specific tool (e.g., Selenium, Postman)
+                // Run integration tests using a specific tool (e.g., Newman)
                 sh 'newman run my_collection.json'
             }
         }
@@ -93,3 +93,4 @@ pipeline {
         }
     }
 }
+
