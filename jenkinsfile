@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                // Checkout code from Git repository
+                // Checkout code from Git repository (specify correct branch)
                 git url: 'https://github.com/groverdev29/assignment', branch: 'main'
                 // Build the code using Maven
                 sh 'mvn clean package'
@@ -13,9 +13,9 @@ pipeline {
 
         stage('Unit and Integration Tests') {
             steps {
-                // Run unit tests using JUnit
+                // Run unit tests using Maven
                 sh 'mvn test'
-                // Run integration tests (e.g., using Selenium or Postman)
+                // Run integration tests using a specific tool (e.g., Selenium, Postman)
                 sh 'newman run my_collection.json'
             }
         }
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Security Scan') {
             steps {
-                // Perform security scanning (e.g., using OWASP ZAP)
+                // Perform security scanning using a specific tool (e.g., OWASP ZAP)
                 sh 'zap-cli --scan <target-url>'
             }
         }
@@ -43,7 +43,7 @@ pipeline {
 
         stage('Integration Tests on Staging') {
             steps {
-                // Run integration tests on staging environment
+                // Run integration tests on the staging environment
                 sh 'newman run my_staging_collection.json'
             }
         }
@@ -52,6 +52,24 @@ pipeline {
             steps {
                 // Deploy application to production server (e.g., AWS EC2 instance)
                 sh 'aws ecs deploy --cluster my-production-cluster --service my-production-service --image my-image:latest'
+            }
+        }
+
+        // Add more stages as needed for specific tasks
+
+        stage('Additional Stage 1') {
+            steps {
+                // Add steps for additional stage 1
+                echo 'Executing Additional Stage 1'
+                sh 'some-command --option'
+            }
+        }
+
+        stage('Additional Stage 2') {
+            steps {
+                // Add steps for additional stage 2
+                echo 'Executing Additional Stage 2'
+                sh 'another-command --option'
             }
         }
     }
