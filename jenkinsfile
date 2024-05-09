@@ -1,48 +1,72 @@
 pipeline {
-    agent any  // Run the pipeline on any available agent (Jenkins worker)
+    agent any
 
     stages {
         stage('Build') {
             steps {
-                // Define steps to build the project (e.g., using Maven)
+                // Checkout code from Git repository
+                git url: 'https://github.com/groverdev29/assignment', branch: 'main'
+                // Build the code using Maven
                 sh 'mvn clean package'
             }
         }
 
-        stage('Test') {
+        stage('Unit and Integration Tests') {
             steps {
-                // Define steps to run tests (e.g., using JUnit)
+                // Run unit tests using JUnit
                 sh 'mvn test'
+                // Run integration tests (e.g., using Selenium or Postman)
+                sh 'newman run my_collection.json'
             }
         }
 
-        stage('Deploy') {
+        stage('Code Analysis') {
             steps {
-                // Define steps to deploy the application (e.g., using shell commands)
-                sh 'deploy_script.sh'
+                // Integrate code analysis tool (e.g., SonarQube)
+                sh 'sonar-scanner'
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                // Perform security scanning (e.g., using OWASP ZAP)
+                sh 'zap-cli --scan <target-url>'
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                // Deploy application to staging server (e.g., AWS EC2 instance)
+                sh 'aws ecs deploy --cluster my-staging-cluster --service my-staging-service --image my-image:latest'
+            }
+        }
+
+        stage('Integration Tests on Staging') {
+            steps {
+                // Run integration tests on staging environment
+                sh 'newman run my_staging_collection.json'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                // Deploy application to production server (e.g., AWS EC2 instance)
+                sh 'aws ecs deploy --cluster my-production-cluster --service my-production-service --image my-image:latest'
             }
         }
     }
 
     post {
-        always {
-            // Define cleanup steps (always executed)
-            echo 'Pipeline execution complete.'
-        }
-
         success {
-            // Define actions to take on pipeline success (e.g., send email notification)
-            echo 'Pipeline succeeded!'
+            // Send email notification on pipeline success
             emailext (
                 subject: "Pipeline Success",
                 body: "The Jenkins pipeline completed successfully.",
                 to: "devgrover55@gmail.com"
             )
         }
-
         failure {
-            // Define actions to take on pipeline failure
-            echo 'Pipeline failed!'
+            // Send email notification on pipeline failure
             emailext (
                 subject: "Pipeline Failure",
                 body: "The Jenkins pipeline failed. Please investigate.",
