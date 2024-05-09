@@ -1,0 +1,53 @@
+pipeline {
+    agent any  // Run the pipeline on any available agent (Jenkins worker)
+
+    stages {
+        stage('Build') {
+            steps {
+                // Define steps to build the project (e.g., using Maven)
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Define steps to run tests (e.g., using JUnit)
+                sh 'mvn test'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Define steps to deploy the application (e.g., using shell commands)
+                sh 'deploy_script.sh'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Define cleanup steps (always executed)
+            echo 'Pipeline execution complete.'
+        }
+
+        success {
+            // Define actions to take on pipeline success (e.g., send email notification)
+            echo 'Pipeline succeeded!'
+            emailext (
+                subject: "Pipeline Success",
+                body: "The Jenkins pipeline completed successfully.",
+                to: "devgrover55@gmail.com"
+            )
+        }
+
+        failure {
+            // Define actions to take on pipeline failure
+            echo 'Pipeline failed!'
+            emailext (
+                subject: "Pipeline Failure",
+                body: "The Jenkins pipeline failed. Please investigate.",
+                to: "devgrover55@gmail.com"
+            )
+        }
+    }
+}
