@@ -1,95 +1,71 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('Build') {
             steps {
-                // Checkout code from Git repository (specify correct branch)
-                git branch: 'main', credentialsId: 'your-git-credentials-id', url: 'https://github.com/groverdev29/assignment'
-                // Build the code using Maven
+                echo 'Building code'
                 sh 'mvn clean package'
             }
         }
-
+        
         stage('Unit and Integration Tests') {
             steps {
-                // Run unit tests using Maven
+                echo 'Running tests'
                 sh 'mvn test'
-                // Run integration tests using a specific tool (e.g., Newman)
-                sh 'newman run my_collection.json'
+                
+                echo 'Running integration tests'
+                sh 'mvn integration-test'
             }
         }
-
+        
         stage('Code Analysis') {
             steps {
-                // Integrate code analysis tool (e.g., SonarQube)
-                sh 'sonar-scanner'
+                echo 'Perform code analysis'
+                sh 'mvn sonar:sonar'
             }
         }
-
+        
         stage('Security Scan') {
             steps {
-                // Perform security scanning using a specific tool (e.g., OWASP ZAP)
-                sh 'zap-cli --scan <target-url>'
+                echo 'Perform security scan'
+                sh 'dependency-check.sh --scan /Jenkins'
             }
         }
-
+        
         stage('Deploy to Staging') {
             steps {
-                // Deploy application to staging server (e.g., AWS EC2 instance)
-                sh 'aws ecs deploy --cluster my-staging-cluster --service my-staging-service --image my-image:latest'
+                echo 'Deploy application to staging server'
             }
         }
-
+        
         stage('Integration Tests on Staging') {
             steps {
-                // Run integration tests on the staging environment
-                sh 'newman run my_staging_collection.json'
+                echo 'Run integration tests on staging environment'
             }
         }
-
+        
         stage('Deploy to Production') {
             steps {
-                // Deploy application to production server (e.g., AWS EC2 instance)
-                sh 'aws ecs deploy --cluster my-production-cluster --service my-production-service --image my-image:latest'
-            }
-        }
-
-        // Add more stages as needed for specific tasks
-
-        stage('Additional Stage 1') {
-            steps {
-                // Add steps for additional stage 1
-                echo 'Executing Additional Stage 1'
-                sh 'some-command --option'
-            }
-        }
-
-        stage('Additional Stage 2') {
-            steps {
-                // Add steps for additional stage 2
-                echo 'Executing Additional Stage 2'
-                sh 'another-command --option'
+                echo 'Deploy application to production server'
             }
         }
     }
-
+    
     post {
         success {
-            // Send email notification on pipeline success
-            emailext (
-                subject: "Pipeline Success",
-                body: "The Jenkins pipeline completed successfully.",
-                to: "devgrover55@gmail.com"
-            )
+            echo 'Build succeeded! Sending email notification...'
+            emailext subject: "Pipeline Successful: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
+                      body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has succeeded.\n\nCheck the attached logs for details.",
+                      to: 'devgrover55@gmail.com',
+                      attachLog: true
         }
         failure {
-            // Send email notification on pipeline failure
-            emailext (
-                subject: "Pipeline Failure",
-                body: "The Jenkins pipeline failed. Please investigate.",
-                to: "devgrover55@gmail.com"
-            )
+            echo 'Build failed! Sending email notification...'
+            emailext subject: "Pipeline Failed: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
+                      body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has failed.\n\nCheck the attached logs for details.",
+                      to: 'Devgrover55@gmail.com',
+                      attachLog: true
         }
     }
 }
