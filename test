@@ -1,21 +1,29 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
+                echo 'Building code'
+                sh 'mvn clean package'
             }
         }
     }
 
     post {
-        always {
-            emailext (
-                subject: "Test Email",
-                body: "This is a test email from Jenkins pipeline.",
-                to: "devgrover55@gmail.com"
-            )
+        success {
+            echo 'Build succeeded! Sending email notification...'
+            emailext subject: "Pipeline Successful: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
+                      body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has succeeded.\n\nCheck the attached logs for details.",
+                      to: 'devgrover55@gmail.com',
+                      attachLog: true
+        }
+        failure {
+            echo 'Build failed! Sending email notification...'
+            emailext subject: "Pipeline Failed: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
+                      body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has failed.\n\nCheck the attached logs for details.",
+                      to: 'devgrover55@gmail.com',
+                      attachLog: true
         }
     }
 }
