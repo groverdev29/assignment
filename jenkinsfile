@@ -29,7 +29,8 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Perform security scan'
-                sh 'dependency-check.sh --scan /Jenkins'
+                sh 'ls -l /path/to/dependency-check.sh'  // Debugging step to ensure the script exists
+                sh '/path/to/dependency-check.sh --scan /Jenkins'
             }
         }
         
@@ -54,18 +55,32 @@ pipeline {
     
     post {
         success {
-            echo 'Build succeeded! Sending email notification'
-            emailext subject: "Pipeline Successful: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
-                      body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has succeeded.\n\nCheck the attached logs for details.",
-                      to: 'devgrover55@gmail.com',
-                      attachLog: true
+            script {
+                echo 'Build succeeded! Sending email notification'
+                try {
+                    emailext subject: "Pipeline Successful: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
+                             body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has succeeded.\n\nCheck the attached logs for details.",
+                             to: 'devgrover55@gmail.com',
+                             attachLog: true
+                    echo "Email sent successfully."
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
+                }
+            }
         }
         failure {
-            echo 'Build failed! Sending email notification.'
-            emailext subject: "Pipeline Failed: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
-                      body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has failed.\n\nCheck the attached logs for details.",
-                      to: 'devgrover55@gmail.com',
-                      attachLog: true
+            script {
+                echo 'Build failed! Sending email notification.'
+                try {
+                    emailext subject: "Pipeline Failed: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
+                             body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has failed.\n\nCheck the attached logs for details.",
+                             to: 'devgrover55@gmail.com',
+                             attachLog: true
+                    echo "Email sent successfully."
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
+                }
+            }
         }
     }
 }
