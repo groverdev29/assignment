@@ -33,13 +33,13 @@ pipeline {
             }
         }
         
-        stage('Deploy to Staging') {
+        stage('Deploy') {
             steps {
                 echo 'Deploy application to staging server'
             }
         }
         
-        stage('Integration Tests on Staging') {
+        stage('Integration') {
             steps {
                 echo 'Run integration tests on staging environment'
             }
@@ -54,17 +54,17 @@ pipeline {
     
     post {
         success {
-            echo 'Build succeeded! Sending email notification...'
+            echo 'Build succeeded! Sending email notification'
             emailext subject: "Pipeline Successful: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
                       body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has succeeded.\n\nCheck the attached logs for details.",
                       to: 'devgrover55@gmail.com',
                       attachLog: true
         }
         failure {
-            echo 'Build failed! Sending email notification...'
+            echo 'Build failed! Sending email notification.'
             emailext subject: "Pipeline Failed: ${env.JOB_NAME} (${env.BUILD_NUMBER})",
                       body: "The pipeline ${env.JOB_NAME} (${env.BUILD_NUMBER}) has failed.\n\nCheck the attached logs for details.",
-                      to: 'Devgrover55@gmail.com',
+                      to: 'devgrover55@gmail.com',
                       attachLog: true
         }
     }
